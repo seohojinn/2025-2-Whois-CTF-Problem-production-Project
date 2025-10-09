@@ -102,14 +102,14 @@ Dockerfile 내용 및 의미는 아래와 같습니다.
 FROM ubuntu:22.04@sha256:3d1556a8a18cf5307b121e0a98e93f1ddf1f3f8e092f1fddfd941254785b95d7
 
 # 환경 변수 설정
-#   user: 사용자 이름을 pwn으로 설정.
-#   prob_port: 서비스가 열릴 포트를 1004로 설정 (나중에 EXPOSE와 socat에서 사용됨).
+#   - user: 사용자 이름을 pwn으로 설정.
+#   - prob_port: 서비스가 열릴 포트를 1004로 설정 (나중에 EXPOSE와 socat에서 사용됨).
 ENV user pwn
 ENV prob_port 1004
 
 # 패키지 설치
-#   apt-get update: 패키지 인덱스를 갱신.
-#   socat: 네트워크 ↔ 프로세스 연결을 위한 도구 설치 (이 컨테이너에서 /prob 실행에 사용됨).
+#   - apt-get update: 패키지 인덱스를 갱신.
+#   - socat: 네트워크 ↔ 프로세스 연결을 위한 도구 설치 (이 컨테이너에서 /prob 실행에 사용됨).
 RUN apt-get update
 RUN apt-get -y install socat
 
@@ -117,19 +117,19 @@ RUN apt-get -y install socat
 RUN adduser -u 1337 $user
 
 # 파일 복사
-#   현재 디렉토리의 flag 파일을 컨테이너의 /flag에 복사.
-#   prob 바이너리를 유저의 홈 디렉토리로 복사.
+#   - 현재 디렉토리의 flag 파일을 컨테이너의 /flag에 복사.
+#   - prob 바이너리를 유저의 홈 디렉토리로 복사.
 ADD ./flag /flag
 ADD ./prob /home/$user/prob
 
 # 소유권 변경
-#   /flag와 /home/pwn/prob 파일의 그룹을 $user로 변경하고, 소유자는 root로 유지.
+#   - /flag와 /home/pwn/prob 파일의 그룹을 $user로 변경하고, 소유자는 root로 유지.
 RUN chown root:$user /flag
 RUN chown root:$user /home/$user/prob
 
 # 권한 설정
-#   prob 바이너리에 실행 권한 부여
-#   flag 파일은 읽기 권한만 부여 (root와 그룹에게만 r--).
+#   - prob 바이너리에 실행 권한 부여
+#   - flag 파일은 읽기 권한만 부여 (root와 그룹에게만 r--).
 RUN chmod +x /home/$user/prob
 RUN chmod 440 /flag
 
@@ -143,7 +143,70 @@ USER $user
 EXPOSE $prob_port
 
 # 시작 명령
-#   socat을 사용해 TCP 포트 1004를 열고, 접속이 들어오면 ./prob 바이너리를 실행시킴.
-#   fork 옵션으로 여러 클라이언트 동시 처리 가능.
+#   - socat을 사용해 TCP 포트 1004를 열고, 접속이 들어오면 ./prob 바이너리를 실행시킴.
+#   - fork 옵션으로 여러 클라이언트 동시 처리 가능.
 CMD socat TCP-L:1004,reuseaddr,fork, EXEC:"./prob"
+```
+
+## Dockerfile에서 Docker Image 생성
+
+아래와 같은 명령어를 통해 test_prob라는 이름의 Docker Images를 생성 할 수 있습니다.
+```bash
+sudo docker build --tag test_prob:1.0 .
+```
+
+이후 ```sudo docker images``` 명령어를 통해 생성된 Image 목록들을 확인 할 수 있습니다.
+
+```bash
+aku7777@test-MS-7E01:~/dreamhack/fnotes$ sudo docker images
+REPOSITORY                TAG       IMAGE ID       CREATED        SIZE
+test_prob                 1.0       c38be245edf9   4 days ago     151MB
+```
+
+## Docker Container 생성 및 실행
+
+생성된 Image를 가지고 Container 생성 및 1004 port로 연결 시켜 실행시키는 명령어는 아래와 같습니다.
+```bash
+sudo docker run -it --rm -p 1004:1004 c38be245edf9
+```
+옵션에 대한 설명은 다음과 같습니다.
+- docker run : 지정된 이미지를 기반으로 새 컨테이너를 실행
+- -it : -i + -t: 상호작용 모드(interactive) + 가상 터미널 할당(tty) → bash나 socat 같은 CLI 프로그램을 직접 다룰 수 있도록 함
+- --rm : 컨테이너 종료 시 자동으로 삭제 (일회성 테스트에 유용)
+- -p 1004:1004 : 호스트의 포트 1004를 컨테이너의 포트 1004에 매핑
+- c38be245edf9 : 실행할 이미지의 ID 또는 태그 
+
+이후 다른 터미널에서 ```nc 127.0.0.1 1004``` 명령어를 수행하면 아래와 같이 Docker Container 내부에서 문제 바이너리가 실행이 되는 것을 확인 할 수 있다.
+
+```bash
+aku7777@test-MS-7E01:~$ nc 127.0.0.1 1004
+1) open
+2) read
+3) write
+4) close
+5) exit
+>
+```
+
+## Docker Container ID 확인 명령어
+```bash
+aku7777@phylasso-MS-7E01:~$ sudo docker ps -a
+[sudo] password for aku7777:
+CONTAINER ID   IMAGE                        COMMAND                  CREATED         STATUS                     PORTS                                             NAMES
+50d74f9d95c5   c38be245edf9                 "/bin/sh -c 'socat T…"   5 minutes ago   Up 5 minutes               0.0.0.0:1004->1004/tcp, [::]:1004->1004/tcp       busy_feynman
+```
+
+## Docker Container 중지 명령어
+```bash
+sudo docker stop 50d74f9d95c5
+```
+
+## Docker Container 삭제 명령어
+```bash
+sudo docker stop 50d74f9d95c5 #[Container ID]
+```
+
+## Docker Image 삭제 명령어
+```bash
+sudo docker rmi c38be245edf9 #[Image ID]
 ```

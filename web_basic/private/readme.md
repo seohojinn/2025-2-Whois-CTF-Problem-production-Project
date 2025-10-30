@@ -1,3 +1,3 @@
-웹문제작중 : blindsql, ssti
+웹문제작중 : blindsql, File Upload + Path Traversal + XSS 
 완료: blindsql
-작업중 : ssti
+작업중 : File Upload + Path Traversal + XSS 

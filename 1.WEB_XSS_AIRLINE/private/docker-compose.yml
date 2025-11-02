@@ -1,0 +1,24 @@
+services:
+  web:
+    build: .
+    container_name: airline-reservation-xss
+    ports:
+      - "8000:8000"
+    environment:
+      - NODE_ENV=production
+      - PORT=8000
+      - FLAG=Whois2025{XSS_1n_A1rl1n3_R3s3rv4t10n_Syst3m_2025}
+      - CHROMIUM_PATH=/usr/bin/chromium-browser
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    networks:
+      - ctf-network
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - seccomp:unconfined
+
+networks:
+  ctf-network:
+    driver: bridge

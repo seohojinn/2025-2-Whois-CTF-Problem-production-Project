@@ -1,4 +1,0 @@
-- Pwn : classic_note
-- Author : kidz0
-- Description : Userland pwn
-- Level : mid

@@ -1,0 +1,17 @@
+{
+  "name": "airline-reservation-xss",
+  "version": "1.0.0",
+  "description": "CTF Web Challenge - Airline Reservation System with XSS and Bot",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["ctf", "xss", "web", "puppeteer"],
+  "author": "kjy",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "puppeteer": "^21.0.0"
+  }
+}

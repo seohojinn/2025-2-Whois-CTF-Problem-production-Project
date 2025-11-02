@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>항공권 좌석 예약</title>
+    <link href="style.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+    
+    <div id="main">
+
+        <div id="container_1">
+            <div id="flight1"></div>
+            <h1>좌석 예약 생성</h1>
+            <form id="reservation">
+                <div>
+                    <label for="name">탑승객 이름</label>
+                    <input name="name" id="name" type="text" placeholder="홍길동">
+                    <span>2 글자 이상 입력하세요.</span>
+                </div>
+                <div>
+                    <label for="seat">좌석</label>
+                    <input name="seat" id="seat" type="text" placeholder="예: 7B">
+                    <div id="flight2"></div>
+                </div>
+                <button type="submit">예약하기</button>
+                <div id="reservationResult"></div>
+            </form>
+            
+            <div style="margin-top: 32px; padding-top: 32px; border-top: 2px solid #dee2e6;">
+                <h2>관리자에게 신고</h2>
+                <p style="font-size: 14px; color: #666; margin-bottom: 16px;">
+                    문제가 있는 예약을 관리자에게 신고할 수 있습니다.
+                </p>
+                <form id="reportForm">
+                    <div>
+                        <label for="reportPath">확인할 페이지 경로</label>
+                        <input name="path" id="reportPath" type="text" placeholder="예: index.html">
+                        <span>관리자가 확인할 페이지 경로를 입력하세요.</span>
+                    </div>
+                    <button type="submit" style="background-color: #dc3545;">관리자에게 신고</button>
+                    <div id="reportResult"></div>
+                </form>
+            </div>
+        </div>
+        
+        <div id="container_2">
+            <h1>예약 목록</h1>
+            <table id="reservationlist">
+                <thead id="listhead">
+                    <th>ID</th>
+                    <th>이름</th>
+                    <th>좌석</th>
+                    <th>시간</th>
+                    <th>작업</th>
+                </thead>
+                <tbody id="listbody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const content1 = document.getElementById('flight1')
+        const content2 = document.getElementById('flight2')
+        const form1 = document.getElementById('reservation')
+        const table = document.getElementById('reservationlist')
+        const tbody = document.getElementById('listbody')
+        const form1_result = document.getElementById('reservationResult')
+        const reportForm = document.getElementById('reportForm')
+        const reportResult = document.getElementById('reportResult')
+        
+        document.addEventListener('DOMContentLoaded', async ()=>{
+            let flight = await fetch('/api/flight', {method: 'GET'})
+                .then(data=>data.json());
+            let flighttext1 = flight.code + " | "+ flight.from + " -> "+ flight.to + " | " + flight.date + " | " + flight.departureTime + "->" + flight.arrivalTime;
+            let flighttext2 = "입력값 예시(7B)\n" + "입력 범위: " + flight.rows + " / " + flight.cols
+            content1.innerText=flighttext1;
+            content2.innerText=flighttext2;
+            reservationAdd();
+        })
+        
+        form1.addEventListener('submit', async (e)=>{
+            e.preventDefault();
+            form1_result.textContent = 'Submit';
+
+            try{
+                const formData = new FormData(e.target);
+                const data = Object.fromEntries(formData.entries());
+
+                const res = await fetch('/api/reservations', {
+                    method:"POST",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                const result = await res.json();
+                form1_result.textContent = JSON.stringify(result);
+                form1_result.style.color = '#28a745';
+                reservationAdd()
+                
+                e.target.reset();
+            }
+            catch(e){
+                form1_result.textContent = '예약 실패: ' + e.message;
+                form1_result.style.color = '#dc3545';
+            }
+        })
+
+        reportForm.addEventListener('submit', async (e)=>{
+            e.preventDefault();
+            reportResult.textContent = '신고 중...';
+            reportResult.style.color = '#ffc107';
+
+            try{
+                const formData = new FormData(e.target);
+                const path = formData.get('path');
+
+                const res = await fetch(`/report?path=${encodeURIComponent(path)}`, {
+                    method:"GET"
+                })
+                
+                if(res.ok) {
+                    reportResult.textContent = '관리자에게 신고가 전송되었습니다.';
+                    reportResult.style.color = '#28a745';
+                } else {
+                    const text = await res.text();
+                    reportResult.textContent = '신고 실패: ' + text;
+                    reportResult.style.color = '#dc3545';
+                }
+                
+                e.target.reset();
+            }
+            catch(e){
+                reportResult.textContent = '신고 실패: ' + e.message;
+                reportResult.style.color = '#dc3545';
+            }
+        })
+
+        const reservationAdd = async ()=>{
+            let result = []
+            try{
+                const res = await fetch('/api/reservations', {method:"GET"})
+                result = await res.json()
+            }catch(e){
+                console.error("목록 로드 실패:", e);
+            }
+
+            tbody.innerHTML = '';
+            
+            if (result.length === 0) {
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 5;
+                td.textContent = '리스트가 없습니다.';
+                td.style.textAlign = 'center';
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+                return;
+            }
+
+            result.forEach(row => {
+                const dataRow = document.createElement('tr');
+
+                // XSS 취약점: innerHTML 사용으로 인한 Stored XSS
+                dataRow.innerHTML = `
+                    <td>${row.id}</td>
+                    <td>${row.name}</td>
+                    <td>${row.seat}</td>
+                    <td>${row.ts}</td>
+                    <td><button onclick="deleteReservation('${row.seat}')">삭제</button></td>
+                `;
+                
+                tbody.appendChild(dataRow);
+            })
+        }
+
+        const deleteReservation = async (seat) => {
+            if(!confirm('정말로 삭제하시겠습니까?')){
+                return;
+            }
+            await deletionPost(seat);
+        }
+
+        const deletionPost = async (id)=>{
+            try {
+                const res = await fetch(`/api/reservations?id=${id}`, {
+                    method: 'DELETE'
+                });
+                const result = await res.json()
+                await reservationAdd()
+                return result
+            } catch (e) {
+                console.error('삭제 실패:', e);
+                return ;
+            }
+        }
+    </script>
+</body>
+</html>

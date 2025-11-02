@@ -1,0 +1,22 @@
+name: airline-reservation-xss-bot
+category: web
+difficulty: easy
+port: 8000
+tags:
+  - XSS
+  - Stored XSS
+  - Bot
+  - Cookie Steal
+  - Puppeteer
+description: |
+  항공권 좌석 예약 시스템입니다.
+  편리한 예약 서비스를 제공하고 있으며, 문제가 있을 경우 관리자에게 신고할 수 있습니다.
+  
+  Connection: http://localhost:8000
+  
+  관리자의 쿠키에 숨겨진 FLAG를 획득하세요!
+  
+  Hint: /report 기능을 활용해보세요.
+flag: Whois2025{XSS_1n_A1rl1n3_R3s3rv4t10n_Syst3m_2025}
+chall_dir: web-airline-reservation-xss
+compose_file: private/docker-compose.yml

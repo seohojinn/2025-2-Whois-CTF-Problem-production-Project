@@ -1,0 +1,10 @@
+{
+  "code": "KE1234",
+  "from": "ICN",
+  "to": "GMP",
+  "date": "2025-11-15",
+  "departureTime": "14:30",
+  "arrivalTime": "15:45",
+  "rows": "1-12",
+  "cols": "A-F"
+}

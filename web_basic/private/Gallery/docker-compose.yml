@@ -1,0 +1,37 @@
+services:
+  web:
+    build: ./web
+    ports:
+      - "3000:80"
+    volumes:
+      - ./web/app/static:/app/static
+    networks:
+      - gallery_network
+    restart: unless-stopped
+
+  bot:
+    build: ./bot
+    ports:
+      - "9999:80"
+    environment:
+      - FLAG=flag{G4ll3ry_XSS_M4st3r_2024}
+    depends_on:
+      - web
+    networks:
+      - gallery_network
+    restart: unless-stopped
+    # Give bot more resources for browser operations
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+
+networks:
+  gallery_network:
+    driver: bridge
+
+volumes:
+  uploads:
+    driver: local

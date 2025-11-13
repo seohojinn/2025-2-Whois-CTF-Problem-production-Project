@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Artwork - Art Gallery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            opacity: 0.9;
+        }
+
+        .form-container {
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus, textarea:focus {
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-upload-label {
+            display: block;
+            padding: 2rem;
+            border: 3px dashed #ddd;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f9f9f9;
+        }
+
+        .file-upload-label:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .file-upload-label.dragover {
+            border-color: #667eea;
+            background: #e8f2ff;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #ddd;
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .file-info {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f0f4ff;
+            border-radius: 10px;
+            border: 1px solid #667eea;
+        }
+
+        .preview {
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .preview img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-button {
+            width: 100%;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .upload-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .message {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 2rem;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .allowed-formats {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #666;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 Share Your Artwork</h1>
+            <p>Upload your creative masterpiece and share it with the world</p>
+        </div>
+        
+        <div class="form-container">
+            <a href="/" class="back-link">← Back to Gallery</a>
+            
+            <form id="uploadForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="title">Artwork Title</label>
+                    <input type="text" id="title" name="title" placeholder="Give your artwork a title..." required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" placeholder="Tell us about your artwork, inspiration, or technique..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="file">Choose Your Artwork</label>
+                    <div class="file-upload">
+                        <input type="file" id="file" name="file" class="file-input" accept="image/*" required>
+                        <label for="file" class="file-upload-label" id="fileLabel">
+                            <div class="upload-icon">📁</div>
+                            <div class="upload-text">
+                                <strong>Click to browse</strong> or drag and drop your image here
+                            </div>
+                        </label>
+                    </div>
+                    <div class="allowed-formats">
+                        Supported formats: PNG, JPG, JPEG, GIF, BMP, WebP, SVG
+                    </div>
+                </div>
+                
+                <div class="file-info" id="fileInfo">
+                    <strong>Selected File:</strong> <span id="fileName"></span><br>
+                    <strong>File Size:</strong> <span id="fileSize"></span>
+                </div>
+                
+                <div class="preview" id="preview"></div>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Uploading your artwork...</p>
+                </div>
+                
+                <div class="message" id="message"></div>
+                
+                <button type="submit" class="upload-button" id="uploadButton" disabled>
+                    Upload Artwork
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('file');
+        const fileLabel = document.getElementById('fileLabel');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const uploadButton = document.getElementById('uploadButton');
+        const uploadForm = document.getElementById('uploadForm');
+        const message = document.getElementById('message');
+        const preview = document.getElementById('preview');
+        const loading = document.getElementById('loading');
+
+        // File input change handler
+        fileInput.addEventListener('change', handleFileSelect);
+
+        // Drag and drop handlers
+        fileLabel.addEventListener('dragover', handleDragOver);
+        fileLabel.addEventListener('dragleave', handleDragLeave);
+        fileLabel.addEventListener('drop', handleDrop);
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            processFile(file);
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            fileLabel.classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            fileLabel.classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            fileLabel.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                processFile(files[0]);
+            }
+        }
+
+        function processFile(file) {
+            if (file) {
+                fileName.textContent = file.name;
+                fileSize.textContent = formatFileSize(file.size);
+                fileInfo.style.display = 'block';
+                uploadButton.disabled = false;
+                
+                fileLabel.innerHTML = `
+                    <div class="upload-icon">✅</div>
+                    <div class="upload-text">
+                        <strong>${file.name}</strong><br>
+                        Click to choose a different file
+                    </div>
+                `;
+                
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        preview.innerHTML = '<img src="' + e.target.result + '" alt="Preview">';
+                    };
+                    reader.readAsDataURL(file);
+                }
+                
+                hideMessage();
+            } else {
+                resetForm();
+            }
+        }
+
+        function resetForm() {
+            fileInfo.style.display = 'none';
+            uploadButton.disabled = true;
+            preview.innerHTML = '';
+            fileLabel.innerHTML = `
+                <div class="upload-icon">📁</div>
+                <div class="upload-text">
+                    <strong>Click to browse</strong> or drag and drop your image here
+                </div>
+            `;
+            hideMessage();
+        }
+
+        // Form submission
+        uploadForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(uploadForm);
+            
+            loading.style.display = 'block';
+            uploadButton.disabled = true;
+            hideMessage();
+            
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                loading.style.display = 'none';
+                
+                if (response.ok) {
+                    return response.json().then(data => {
+                        showMessage('Artwork uploaded successfully! 🎉', 'success');
+                        setTimeout(() => {
+                            window.location.href = '/image/' + data.image_id;
+                        }, 2000);
+                    });
+                } else {
+                    return response.json().then(data => {
+                        showMessage(data.error || 'Upload failed. Please try again.', 'error');
+                        uploadButton.disabled = false;
+                    });
+                }
+            })
+            .catch(error => {
+                loading.style.display = 'none';
+                uploadButton.disabled = false;
+                showMessage('An error occurred during upload.', 'error');
+                console.error('Error:', error);
+            });
+        });
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function showMessage(text, type) {
+            message.textContent = text;
+            message.className = 'message ' + type;
+            message.style.display = 'block';
+        }
+
+        function hideMessage() {
+            message.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

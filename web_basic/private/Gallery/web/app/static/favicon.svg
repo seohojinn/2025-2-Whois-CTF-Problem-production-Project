@@ -1,0 +1,10 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN"
+ "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg version="1.0" xmlns="http://www.w3.org/2000/svg"
+ width="16" height="16" viewBox="0 0 16 16">
+  <!-- Simple gallery icon -->
+  <rect x="2" y="2" width="12" height="12" fill="#667eea" rx="2"/>
+  <circle cx="8" cy="8" r="3" fill="white"/>
+  <circle cx="8" cy="8" r="1" fill="#667eea"/>
+</svg>

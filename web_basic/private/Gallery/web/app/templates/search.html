@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search - Art Gallery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .search-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .search-box {
+            max-width: 600px;
+            margin: 1rem auto;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 1rem 3rem 1rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-box input:focus {
+            border-color: #667eea;
+        }
+
+        .search-button {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            bottom: 5px;
+            padding: 0 1.5rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+
+        .search-button:hover {
+            background: #5a6fd8;
+        }
+
+        .results-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+
+        .results-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .results-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .results-count {
+            color: #666;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .result-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .result-content {
+            padding: 1rem;
+        }
+
+        .result-title {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .result-description {
+            color: #666;
+            margin-bottom: 0.5rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .result-meta {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #666;
+        }
+
+        .no-results h3 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .no-results p {
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .search-suggestions {
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .suggestion-links {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+
+        .suggestion-links a {
+            padding: 0.5rem 1rem;
+            background: #f8f9fa;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .suggestion-links a:hover {
+            background: #667eea;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo">🎨 Art Gallery</a>
+            <div class="nav-links">
+                <a href="/">Gallery</a>
+                <a href="/upload">Upload</a>
+                <a href="/search">Search</a>
+                <a href="/admin">Admin</a>
+                <a href="/report">Report</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="search-header">
+            <h1>🔍 Search Gallery</h1>
+            <p>Find amazing artwork by title, artist, or description</p>
+            
+            <form action="/search" method="GET" class="search-box">
+                <input type="text" name="q" value="{{ query }}" 
+                       placeholder="Search for artwork, artists, tags..." 
+                       autocomplete="off">
+                <button type="submit" class="search-button">Search</button>
+            </form>
+        </div>
+
+        <div class="results-section">
+            {% if query %}
+                <div class="results-header">
+                    <h2 class="results-title">Search Results</h2>
+                    <p class="results-count">
+                        {% if results %}
+                            Found {{ results|length }} result(s) for "{{ query }}"
+                        {% else %}
+                            No results found for "{{ query }}"
+                        {% endif %}
+                    </p>
+                </div>
+
+                {% if results %}
+                    <div class="results-grid">
+                        {% for image in results %}
+                        <div class="result-card" onclick="window.location.href='/image/{{ image.id }}'">
+                            <img src="{{ image.url }}" alt="{{ image.title }}" 
+                                 onerror="this.src='/static/placeholder.png'">
+                            <div class="result-content">
+                                <div class="result-title">{{ image.title }}</div>
+                                <div class="result-description">{{ image.description }}</div>
+                                <div class="result-meta">
+                                    By {{ image.uploader }} • {{ image.upload_time }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="no-results">
+                        <h3>No results found</h3>
+                        <p>We couldn't find any artwork matching "{{ query }}". Try different keywords or browse our gallery.</p>
+                        <a href="/" class="btn">Browse Gallery</a>
+                        
+                        <div class="search-suggestions">
+                            <p><strong>Search suggestions:</strong></p>
+                            <div class="suggestion-links">
+                                <a href="/search?q=art">art</a>
+                                <a href="/search?q=painting">painting</a>
+                                <a href="/search?q=digital">digital</a>
+                                <a href="/search?q=portrait">portrait</a>
+                                <a href="/search?q=landscape">landscape</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="no-results">
+                    <h3>Start Your Search</h3>
+                    <p>Enter keywords above to find amazing artwork in our gallery.</p>
+                    
+                    <div class="search-suggestions">
+                        <p><strong>Popular searches:</strong></p>
+                        <div class="suggestion-links">
+                            <a href="/search?q=abstract">abstract</a>
+                            <a href="/search?q=modern">modern</a>
+                            <a href="/search?q=classic">classic</a>
+                            <a href="/search?q=colorful">colorful</a>
+                            <a href="/search?q=black and white">black and white</a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        // Focus search input on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.querySelector('input[name="q"]');
+            if (searchInput && !searchInput.value) {
+                searchInput.focus();
+            }
+        });
+
+        // Handle suggestion clicks
+        document.querySelectorAll('.suggestion-links a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const query = this.textContent;
+                window.location.href = '/search?q=' + encodeURIComponent(query);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ image.title }} - Art Gallery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .image-section {
+            position: relative;
+        }
+
+        .main-image {
+            width: 100%;
+            max-height: 500px;
+            object-fit: contain;
+            background: #f8f9fa;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1rem;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .image-header {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .image-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #333;
+            /* XSS vulnerability: Title displayed without sanitization */
+        }
+
+        .image-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .image-description {
+            color: #444;
+            line-height: 1.6;
+            font-size: 1.1rem;
+        }
+
+        .interaction-section {
+            display: flex;
+            gap: 1rem;
+            margin: 2rem 0;
+            align-items: center;
+        }
+
+        .like-button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .like-button:hover {
+            background: #ff5252;
+            transform: translateY(-2px);
+        }
+
+        .like-count {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+        }
+
+        .comments-section {
+            border-top: 1px solid #eee;
+            padding-top: 2rem;
+        }
+
+        .comments-header {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+
+        .comment-form {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+
+        .comment-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .comment-input:focus {
+            border-color: #667eea;
+        }
+
+        .comment-submit {
+            margin-top: 1rem;
+            padding: 0.75rem 1.5rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .comment-submit:hover {
+            background: #5a6fd8;
+        }
+
+        .comments-list {
+            space-y: 1rem;
+        }
+
+        .comment {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #667eea;
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .comment-author {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .comment-time {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .comment-text {
+            color: #444;
+            line-height: 1.5;
+            /* XSS vulnerability: Comments displayed without sanitization */
+        }
+
+        .no-comments {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 2rem;
+        }
+
+        .message {
+            margin: 1rem 0;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 1rem;
+                border-radius: 15px;
+            }
+            
+            .content {
+                padding: 1rem;
+            }
+            
+            .image-title {
+                font-size: 1.5rem;
+            }
+            
+            .image-meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="image-section">
+            <img src="{{ image.url }}" alt="{{ image.title }}" class="main-image" 
+                 onerror="this.src='/static/placeholder.png'">
+        </div>
+        
+        <div class="content">
+            <a href="/" class="back-link">← Back to Gallery</a>
+            
+            <div class="image-header">
+                <!-- XSS vulnerability: Title is not sanitized -->
+                <h1 class="image-title">{{ image.title|safe }}</h1>
+                <div class="image-meta">
+                    <div>
+                        <strong>Artist:</strong> {{ image.uploader }} | 
+                        <strong>Uploaded:</strong> {{ image.upload_time }}
+                    </div>
+                </div>
+                {% if image.description %}
+                <div class="image-description">{{ image.description }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="interaction-section">
+                <button class="like-button" onclick="likeImage('{{ image.id }}')">
+                    ❤️ Like <span class="like-count" id="likeCount">{{ likes }}</span>
+                </button>
+            </div>
+            
+            <div class="comments-section">
+                <h3 class="comments-header">Comments ({{ comments|length }})</h3>
+                
+                <div class="comment-form">
+                    <form id="commentForm">
+                        <textarea class="comment-input" name="comment" placeholder="Share your thoughts about this artwork..." required></textarea>
+                        <button type="submit" class="comment-submit">Post Comment</button>
+                    </form>
+                    <div class="message" id="message"></div>
+                </div>
+                
+                <div class="comments-list" id="commentsList">
+                    {% if comments %}
+                        {% for comment in comments %}
+                        <div class="comment">
+                            <div class="comment-header">
+                                <span class="comment-author">{{ comment.username }}</span>
+                                <span class="comment-time">{{ comment.time }}</span>
+                            </div>
+                            <!-- XSS vulnerability: Comment text displayed without sanitization -->
+                            <div class="comment-text">{{ comment.text|safe }}</div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="no-comments">No comments yet. Be the first to share your thoughts!</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function likeImage(imageId) {
+            fetch(`/like/${imageId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('likeCount').textContent = data.likes;
+                    showMessage('Thanks for liking this artwork! ❤️', 'success');
+                } else {
+                    showMessage('Failed to like artwork. Please try again.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('An error occurred. Please try again.', 'error');
+            });
+        }
+
+        document.getElementById('commentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const commentText = formData.get('comment').trim();
+            
+            if (!commentText) {
+                showMessage('Please enter a comment.', 'error');
+                return;
+            }
+            
+            fetch(`/comment/{{ image.id }}`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    addCommentToList(data.comment);
+                    this.reset();
+                    showMessage('Comment posted successfully!', 'success');
+                    
+                    // Update comments count
+                    const header = document.querySelector('.comments-header');
+                    const currentCount = document.querySelectorAll('.comment').length;
+                    header.textContent = `Comments (${currentCount})`;
+                    
+                    // Hide no-comments message if it exists
+                    const noComments = document.querySelector('.no-comments');
+                    if (noComments) {
+                        noComments.style.display = 'none';
+                    }
+                } else {
+                    showMessage(data.error || 'Failed to post comment.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('An error occurred. Please try again.', 'error');
+            });
+        });
+
+        function addCommentToList(comment) {
+            const commentsList = document.getElementById('commentsList');
+            const commentDiv = document.createElement('div');
+            commentDiv.className = 'comment';
+            
+            // XSS vulnerability: Comment text inserted without sanitization
+            commentDiv.innerHTML = `
+                <div class="comment-header">
+                    <span class="comment-author">${comment.username}</span>
+                    <span class="comment-time">${comment.time}</span>
+                </div>
+                <div class="comment-text">${comment.text}</div>
+            `;
+            
+            // Insert at the beginning
+            commentsList.insertBefore(commentDiv, commentsList.firstChild);
+        }
+
+        function showMessage(text, type) {
+            const message = document.getElementById('message');
+            message.textContent = text;
+            message.className = 'message ' + type;
+            message.style.display = 'block';
+            
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

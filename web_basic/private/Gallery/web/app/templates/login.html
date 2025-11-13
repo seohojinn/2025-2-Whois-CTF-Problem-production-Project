@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Art Gallery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .login-container {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .login-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-subtitle {
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: #667eea;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .guest-login {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .guest-login:hover {
+            background: #e9ecef;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 2rem;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .features {
+            margin-top: 2rem;
+            text-align: left;
+        }
+
+        .features h4 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .features ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .features li {
+            color: #666;
+            margin-bottom: 0.25rem;
+            padding-left: 1rem;
+            position: relative;
+        }
+
+        .features li:before {
+            content: "✓";
+            color: #667eea;
+            position: absolute;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">🎨</div>
+        <h1 class="login-title">Welcome Back</h1>
+        <p class="login-subtitle">Sign in to share your creativity</p>
+        
+        <form method="POST">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" 
+                       placeholder="Enter your username..." required>
+            </div>
+            
+            <button type="submit" class="login-button">
+                Sign In
+            </button>
+        </form>
+        
+        <div class="guest-login" onclick="loginAsGuest()">
+            <strong>Continue as Guest</strong><br>
+            <small>Browse and upload without an account</small>
+        </div>
+        
+        <div class="features">
+            <h4>Why join our community?</h4>
+            <ul>
+                <li>Upload and share your artwork</li>
+                <li>Comment on amazing pieces</li>
+                <li>Like your favorite art</li>
+                <li>Connect with other artists</li>
+            </ul>
+        </div>
+        
+        <a href="/" class="back-link">← Back to Gallery</a>
+    </div>
+
+    <script>
+        function loginAsGuest() {
+            // Set a random guest username
+            const guestNames = ['ArtLover', 'CreativeGuest', 'GalleryVisitor', 'ArtExplorer', 'VisualArtist'];
+            const randomName = guestNames[Math.floor(Math.random() * guestNames.length)] + Math.floor(Math.random() * 1000);
+            
+            document.getElementById('username').value = randomName;
+            document.querySelector('form').submit();
+        }
+
+        // Auto-focus username input
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('username').focus();
+        });
+    </script>
+</body>
+</html>

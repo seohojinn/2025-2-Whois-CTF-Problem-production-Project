@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Art Gallery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .section {
+            margin-bottom: 3rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 0.5rem;
+        }
+
+        .images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .admin-image-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .admin-image-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .admin-image-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .admin-card-content {
+            padding: 1rem;
+        }
+
+        .admin-card-title {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #333;
+            /* XSS vulnerability in admin panel */
+        }
+
+        .admin-card-info {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .admin-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-view {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: #5a6fd8;
+        }
+
+        .btn-delete {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #ff5252;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 2rem;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .no-images {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ Admin Dashboard</h1>
+            <p>Manage your art gallery and monitor uploads</p>
+        </div>
+        
+        <div class="content">
+            <a href="/" class="back-link">← Back to Gallery</a>
+            
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number">{{ total_images }}</div>
+                    <div class="stat-label">Total Artworks</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ images|length }}</div>
+                    <div class="stat-label">Recent Uploads</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">✓</div>
+                    <div class="stat-label">System Status</div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2 class="section-title">Recent Uploads</h2>
+                
+                {% if images %}
+                    <div class="images-grid">
+                        {% for image in images[-10:] %}
+                        <div class="admin-image-card">
+                            <img src="{{ image.url }}" alt="{{ image.title }}" 
+                                 onerror="this.src='/static/placeholder.png'">
+                            <div class="admin-card-content">
+                                <!-- XSS vulnerability: Admin panel displays unescaped titles -->
+                                <div class="admin-card-title">{{ image.title|safe }}</div>
+                                <div class="admin-card-info">
+                                    <strong>Artist:</strong> {{ image.uploader }}<br>
+                                    <strong>Uploaded:</strong> {{ image.upload_time }}<br>
+                                    <strong>File:</strong> {{ image.filename }}
+                                </div>
+                                <div class="admin-actions">
+                                    <button class="admin-btn btn-view" onclick="viewImage('{{ image.id }}')">
+                                        View
+                                    </button>
+                                    <button class="admin-btn btn-delete" onclick="deleteImage('{{ image.id }}')">
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="no-images">
+                        <h3>No artworks uploaded yet</h3>
+                        <p>The gallery is empty. Waiting for the first upload!</p>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="section">
+                <h2 class="section-title">Quick Actions</h2>
+                <div class="admin-actions">
+                    <button class="admin-btn btn-view" onclick="refreshPage()">
+                        🔄 Refresh Dashboard
+                    </button>
+                    <button class="admin-btn btn-view" onclick="viewAllImages()">
+                        📋 View All Images
+                    </button>
+                    <button class="admin-btn btn-delete" onclick="clearCache()">
+                        🗑️ Clear Cache
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function viewImage(imageId) {
+            window.open('/image/' + imageId, '_blank');
+        }
+
+        function deleteImage(imageId) {
+            if (confirm('Are you sure you want to delete this image?')) {
+                // In a real application, this would make an API call
+                alert('Delete functionality would be implemented here');
+            }
+        }
+
+        function refreshPage() {
+            window.location.reload();
+        }
+
+        function viewAllImages() {
+            window.location.href = '/';
+        }
+
+        function clearCache() {
+            if (confirm('Clear all cached data?')) {
+                alert('Cache cleared successfully!');
+            }
+        }
+
+        // Auto-refresh dashboard every 30 seconds (for demo purposes)
+        setInterval(() => {
+            console.log('Dashboard auto-refresh...');
+        }, 30000);
+    </script>
+</body>
+</html>
